@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>電解質大師：雙重鑑定挑戰</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,"Noto Sans TC",sans-serif;background:#f0f4f8;min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:1rem;}
+#app{width:100%;max-width:560px;}
+button{cursor:pointer;font-family:inherit;}
+.hidden{display:none!important;}
+#screen-title{background:linear-gradient(135deg,#e74c3c 0%,#c0392b 40%,#2980b9 100%);border-radius:20px;padding:2.5rem 2rem;display:flex;flex-direction:column;align-items:center;gap:18px;text-align:center;min-height:420px;justify-content:center;}
+.t-icon{font-size:58px;line-height:1;}
+.t-main{font-size:26px;font-weight:800;color:#fff;letter-spacing:2px;}
+.t-sub{font-size:14px;color:rgba(255,255,255,0.85);margin-top:4px;}
+.t-desc{background:rgba(255,255,255,0.15);border-radius:12px;padding:12px 18px;max-width:320px;color:#fff;font-size:13px;line-height:1.8;}
+.t-rules{background:rgba(255,255,255,0.12);border-radius:10px;padding:10px 16px;font-size:12px;color:rgba(255,255,255,0.9);line-height:1.9;max-width:300px;}
+.btn-start{background:#f1c40f;border:none;border-radius:30px;padding:13px 44px;font-size:18px;font-weight:800;color:#2c3e50;letter-spacing:1px;transition:transform .1s;}
+.btn-start:hover{transform:scale(1.05);}
+#screen-game{padding:4px 0;}
+.hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.hdr-left{font-size:13px;color:#666;}
+.hdr-right{display:flex;align-items:center;gap:12px;}
+.hdr-timer{font-size:13px;font-weight:700;color:#f39c12;}
+.hdr-score{font-size:14px;font-weight:800;color:#8e44ad;}
+.progress-strip{display:flex;gap:4px;margin-bottom:12px;}
+.pstrip-seg{flex:1;height:6px;border-radius:3px;background:#ddd;transition:background .3s;}
+.pstrip-seg.done{background:#27ae60;}
+.spirit-card{border-radius:16px;padding:18px 18px 14px;margin-bottom:12px;position:relative;}
+.type-badge{position:absolute;top:10px;right:12px;font-size:11px;border-radius:8px;padding:3px 9px;font-weight:700;color:#fff;}
+.sp-header{display:flex;align-items:center;gap:12px;margin-bottom:10px;}
+.sp-avatar{width:64px;height:64px;border-radius:12px;background:rgba(0,0,0,0.15);display:flex;align-items:center;justify-content:center;font-size:38px;}
+.sp-avatar.shadow{filter:grayscale(1) brightness(0.15);}
+.sp-phase{font-size:13px;color:#666;}
+.sp-title{font-size:16px;font-weight:800;}
+.sp-hint{font-size:12px;color:#777;margin-top:2px;}
+.mistake-bar{font-size:12px;color:#e74c3c;margin-bottom:6px;}
+.fb{border-radius:8px;padding:9px 13px;font-size:13px;line-height:1.7;margin-bottom:8px;border:1px solid;}
+.fb.success{background:#d5f5e3;border-color:#27ae60;color:#1a7a4a;}
+.fb.fail{background:#fadbd8;border-color:#e74c3c;color:#c0392b;}
+.captured-inner{text-align:center;}
+.cap-emoji{font-size:50px;margin-bottom:4px;}
+.cap-name{font-size:19px;font-weight:800;}
+.cap-formula{font-size:13px;color:#666;margin-bottom:8px;}
+.cap-score-row{background:rgba(255,255,255,0.8);border-radius:10px;padding:8px 12px;margin-bottom:8px;display:flex;justify-content:center;gap:18px;font-size:13px;}
+.cap-note{background:rgba(255,255,255,0.7);border-radius:10px;padding:10px 13px;font-size:13px;color:#2c3e50;text-align:left;line-height:1.8;}
+.cap-note b{color:#e67e22;}
+.btn-next-spirit{margin-top:12px;border:none;border-radius:20px;padding:10px 28px;color:#fff;font-weight:700;font-size:14px;}
+.fruit-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.fruit-btn{border-radius:14px;padding:14px 8px;text-align:center;border-width:2px;border-style:solid;background:transparent;transition:transform .12s;}
+.fruit-btn:hover{transform:scale(1.04);}
+.fruit-emoji{font-size:32px;}
+.fruit-label{font-size:12px;font-weight:700;margin-top:4px;}
+.fruit-desc{font-size:10px;color:#777;margin-top:2px;}
+.action-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.action-btn{border-radius:14px;padding:16px 12px;text-align:center;font-size:13px;font-weight:700;line-height:1.5;background:#fff;border-width:2px;border-style:solid;transition:transform .12s;}
+.action-btn:hover{transform:scale(1.04);}
+#screen-complete{background:#fff;border-radius:20px;padding:2rem;}
+.comp-top{text-align:center;margin-bottom:16px;}
+.comp-icon{font-size:52px;margin-bottom:8px;}
+.comp-title{font-size:22px;font-weight:800;color:#2c3e50;}
+.comp-score{font-size:28px;font-weight:800;margin:10px 0;}
+.rank-badge{display:inline-block;border-radius:20px;padding:5px 20px;font-size:15px;font-weight:700;color:#fff;margin-bottom:6px;}
+.comp-pct{font-size:13px;color:#888;margin-top:4px;}
+.score-bar-wrap{background:#f0f4f8;border-radius:10px;height:16px;overflow:hidden;margin-bottom:20px;}
+.score-bar-fill{background:linear-gradient(90deg,#e74c3c,#f1c40f);height:100%;border-radius:10px;transition:width 1.2s;}
+.breakdown-title{font-size:13px;font-weight:700;color:#555;margin-bottom:8px;}
+.breakdown-list{display:flex;flex-direction:column;gap:6px;margin-bottom:18px;}
+.breakdown-row{display:flex;align-items:center;gap:10px;background:#f8f9fa;border-radius:10px;padding:8px 12px;}
+.bdr-emoji{font-size:20px;min-width:24px;}
+.bdr-name{flex:1;font-size:13px;font-weight:600;color:#2c3e50;}
+.bdr-mistakes{font-size:12px;color:#e74c3c;min-width:48px;}
+.bdr-time{font-size:12px;color:#888;min-width:48px;}
+.bdr-pts{font-size:14px;font-weight:800;min-width:40px;text-align:right;}
+.dex-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:8px;margin-bottom:20px;}
+.dex-card{border-radius:12px;padding:8px 4px;text-align:center;}
+.dex-emoji{font-size:22px;}
+.dex-name{font-size:10px;font-weight:700;margin-top:3px;}
+.btn-restart{background:#e74c3c;border:none;border-radius:24px;padding:10px 32px;font-size:15px;font-weight:700;color:#fff;display:block;margin:0 auto;}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="screen-title">
+    <div class="t-icon">⚡</div>
+    <div><div class="t-main">電解質大師</div><div class="t-sub">雙重鑑定挑戰</div></div>
+    <div class="t-desc">在草叢中遇見 11 種神祕精靈！先用正確果實安撫，再用特質動作收服！<br><span style="color:#f1c40f;font-weight:700;">⏱ 越快越準，得分越高！滿分 1650 分</span></div>
+    <div class="t-rules">✅ 每隻基礎分：100 分<br>⏱ 時間獎勵：最多 +50 分（每5秒 -5分）<br>❌ 每次答錯：-20 分</div>
+    <button class="btn-start" id="btn-start">開始冒險！</button>
+  </div>
+
+  <div id="screen-game" class="hidden">
+    <div class="hdr">
+      <div class="hdr-left">已收服 <span id="captured-count" style="font-weight:700;color:#e74c3c;">0</span>/11</div>
+      <div class="hdr-right">
+        <div class="hdr-timer">⏱ <span id="timer-display">0</span>s</div>
+        <div class="hdr-score">⚡ <span id="score-display">0</span>分</div>
+      </div>
+    </div>
+    <div class="progress-strip" id="progress-strip"></div>
+    <div class="spirit-card" id="spirit-card"></div>
+    <div id="choices-area"></div>
+  </div>
+
+  <div id="screen-complete" class="hidden">
+    <div class="comp-top">
+      <div class="comp-icon" id="comp-icon"></div>
+      <div class="comp-title">全部收服成功！</div>
+      <div class="comp-score" id="comp-score"></div>
+      <div class="rank-badge" id="rank-badge"></div>
+      <div class="comp-pct" id="comp-pct"></div>
+    </div>
+    <div class="score-bar-wrap"><div class="score-bar-fill" id="score-bar-fill" style="width:0%"></div></div>
+    <div class="breakdown-title">📋 各精靈得分明細</div>
+    <div class="breakdown-list" id="breakdown-list"></div>
+    <div class="dex-grid" id="dex-grid"></div>
+    <button class="btn-restart" id="btn-restart">再挑戰一次</button>
+  </div>
+</div>
+
+<script>
+var SUBSTANCES=[
+  {id:"HCl",name:"鹽酸",formula:"HCl",type:"acid",color:"#e74c3c",bgColor:"#fadbd8",phase1Hint:"強酸精靈，能使藍色石蕊試紙變紅",correctFruit:"acid",actions:[{text:"投入鎂帶（產氫氣）",correct:true},{text:"照光分解",correct:false}],failReason:"鹽酸遇光不會分解，但與活潑金屬（鎂）反應會產生氫氣！",studyNote:"鹽酸（HCl）是強酸，與鎂反應：Mg + 2HCl → MgCl₂ + H₂↑",spirit:"酸焰精靈",spiritEmoji:"🔴"},
+  {id:"H2SO4",name:"硫酸",formula:"H₂SO₄",type:"acid",color:"#c0392b",bgColor:"#f9ebea",phase1Hint:"濃酸精靈，具有強烈脫水性，遇水放熱",correctFruit:"acid",actions:[{text:"發動脫水（變黑炭）",correct:true},{text:"直接加水稀釋",correct:false}],failReason:"濃硫酸直接加水會爆沸噴濺！應將酸緩緩加入水中，切勿反向操作！",studyNote:"濃硫酸具強烈脫水性，可將糖脫水炭化；稀釋時要酸入水，千萬不能水入酸！",spirit:"炭化精靈",spiritEmoji:"⚫"},
+  {id:"CH3COOH",name:"醋酸",formula:"CH₃COOH",type:"acid",color:"#e67e22",bgColor:"#fdebd0",phase1Hint:"弱酸精靈，純醋酸在低溫會凝固成冰",correctFruit:"acid",actions:[{text:"降溫至16.7度（冰醋酸）",correct:true},{text:"強電解質充能",correct:false}],failReason:"醋酸是弱電解質，無法被強電解質「充能」；但降溫至16.7°C會凝固成「冰醋酸」！",studyNote:"醋酸（CH₃COOH）是弱電解質，純醋酸熔點為16.7°C，低於此溫度會凝固，稱為「冰醋酸」。",spirit:"冰醋精靈",spiritEmoji:"🧊"},
+  {id:"NaOH",name:"氫氧化鈉",formula:"NaOH",type:"base",color:"#2980b9",bgColor:"#d6eaf8",phase1Hint:"強鹼精靈，會吸收空氣中的水分而潮解",correctFruit:"base",actions:[{text:"測量潮解（吸水變質）",correct:true},{text:"過濾分離",correct:false}],failReason:"NaOH潮解後溶於水，無法用過濾分離；其特性是在空氣中會吸水潮解！",studyNote:"氫氧化鈉（NaOH）俗稱燒鹼，會潮解且吸收CO₂變質，需密封保存。",spirit:"潮解精靈",spiritEmoji:"💧"},
+  {id:"CaO",name:"氧化鈣",formula:"CaO",type:"base",color:"#7f8c8d",bgColor:"#eaeded",phase1Hint:"生石灰精靈，加水後會大量放熱",correctFruit:"base",actions:[{text:"加水放熱（生石灰）",correct:true},{text:"低溫冷凍",correct:false}],failReason:"氧化鈣（生石灰）加水會生成Ca(OH)₂並大量放熱，冷凍無法展現其特性！",studyNote:"氧化鈣（CaO）俗稱生石灰，加水反應：CaO + H₂O → Ca(OH)₂，放出大量熱能，可用於加熱食品。",spirit:"石灰精靈",spiritEmoji:"🔥"},
+  {id:"NH3",name:"氨",formula:"NH₃",type:"base",color:"#8e44ad",bgColor:"#f5eef8",phase1Hint:"氣態精靈，比空氣輕，具有特殊臭味",correctFruit:"base",actions:[{text:"向上排氣捕捉（比空氣輕）",correct:true},{text:"酸性判定",correct:false}],failReason:"氨水呈鹼性，不是酸性！氨氣比空氣輕，收集時要用向上排氣法。",studyNote:"氨（NH₃）是弱鹼，溶於水形成氨水（NH₃·H₂O）呈鹼性；氨氣密度比空氣小，用向上排氣法收集。",spirit:"羽量精靈",spiritEmoji:"🟣"},
+  {id:"NaCl",name:"氯化鈉",formula:"NaCl",type:"neutral",color:"#27ae60",bgColor:"#d5f5e3",phase1Hint:"中性精靈，是常見的食鹽，試紙不變色",correctFruit:"neutral",actions:[{text:"海水蒸發（中性結晶）",correct:true},{text:"加入鹽酸產氣",correct:false}],failReason:"NaCl是中性鹽，與鹽酸不會有明顯反應；其最典型特性是從海水蒸發結晶！",studyNote:"氯化鈉（NaCl）俗稱食鹽，水溶液呈中性，是強電解質，工業上從海水蒸發取得。",spirit:"晶鹽精靈",spiritEmoji:"🟢"},
+  {id:"CaSO4",name:"硫酸鈣",formula:"CaSO₄",type:"neutral",color:"#95a5a6",bgColor:"#ecf0f1",phase1Hint:"中性精靈，微溶於水，加熱後能固化",correctFruit:"neutral",actions:[{text:"石膏固化（微溶固定）",correct:true},{text:"貝殼硬殼防禦",correct:false}],failReason:"貝殼主成分是碳酸鈣（CaCO₃），不是硫酸鈣！硫酸鈣的特性是石膏固化。",studyNote:"硫酸鈣（CaSO₄）俗稱石膏，微溶於水，工業上用於製造建材、醫療石膏繃帶。",spirit:"石膏精靈",spiritEmoji:"⚪"},
+  {id:"CaCO3",name:"碳酸鈣",formula:"CaCO₃",type:"neutral",color:"#f39c12",bgColor:"#fef9e7",phase1Hint:"中性精靈，是貝殼和大理石的主成分",correctFruit:"neutral",actions:[{text:"潑灑稀鹽酸（產CO₂）",correct:true},{text:"溶解在水中",correct:false}],failReason:"碳酸鈣幾乎不溶於水！但遇稀鹽酸會反應產生CO₂氣泡。",studyNote:"碳酸鈣（CaCO₃）是貝殼、大理石的主成分，與稀鹽酸反應：CaCO₃ + 2HCl → CaCl₂ + H₂O + CO₂↑",spirit:"大理石精靈",spiritEmoji:"🟡"},
+  {id:"Na2CO3",name:"碳酸鈉",formula:"Na₂CO₃",type:"salt_base",color:"#1abc9c",bgColor:"#d1f2eb",phase1Hint:"鹽類精靈，但水溶液呈鹼性，需鹼性果實安撫",correctFruit:"base",actions:[{text:"製造玻璃（蘇打）",correct:true},{text:"烘焙麵糰",correct:false}],failReason:"烘焙用的是小蘇打（NaHCO₃）！碳酸鈉（蘇打）是製造玻璃的原料之一。",studyNote:"碳酸鈉（Na₂CO₃）俗稱蘇打，水溶液呈鹼性，是製造玻璃、肥皂的重要原料。",spirit:"蘇打精靈",spiritEmoji:"🩵"},
+  {id:"NaHCO3",name:"碳酸氫鈉",formula:"NaHCO₃",type:"salt_base",color:"#16a085",bgColor:"#d0ece7",phase1Hint:"鹽類精靈，水溶液也呈鹼性，加熱會分解產氣",correctFruit:"base",actions:[{text:"受熱產氣（小蘇打）",correct:true},{text:"冰醋酸忍者",correct:false}],failReason:"冰醋酸是醋酸（CH₃COOH）的特性！小蘇打（NaHCO₃）加熱會分解產生CO₂。",studyNote:"碳酸氫鈉（NaHCO₃）俗稱小蘇打，受熱分解：2NaHCO₃ → Na₂CO₃ + H₂O + CO₂↑，是膨鬆劑原理。",spirit:"小蘇打精靈",spiritEmoji:"🩶"}
+];
+var FRUITS=[
+  {type:"acid",label:"酸性果實",emoji:"🍎",color:"#e74c3c",bg:"#fadbd8",desc:"使藍色石蕊試紙變紅"},
+  {type:"base",label:"鹼性果實",emoji:"🫐",color:"#2980b9",bg:"#d6eaf8",desc:"使紅色石蕊試紙變藍"},
+  {type:"neutral",label:"中性果實",emoji:"🥚",color:"#7f8c8d",bg:"#eaeded",desc:"試紙不變色"}
+];
+var TYPE_LABELS={acid:"酸性",base:"鹼性",neutral:"中性鹽",salt_base:"鹼性鹽"};
+var BASE=100,TIME_BONUS=50,PENALTY=20,MAX_SCORE=SUBSTANCES.length*(BASE+TIME_BONUS);
+var queue,current,phase,totalScore,spiritMistakes,spiritStart,captured,spiritScores,timerInterval,elapsed,currentActions;
+
+function $(id){return document.getElementById(id);}
+function showScreen(id){
+  ['screen-title','screen-game','screen-complete'].forEach(function(s){$(s).classList.add('hidden');});
+  $(id).classList.remove('hidden');
+}
+function getRank(s){
+  if(s>=950)return{label:"電解質大師 S+",color:"#d4ac0d",emoji:"👑"};
+  if(s>=850)return{label:"化學達人 S",color:"#e74c3c",emoji:"🏆"};
+  if(s>=700)return{label:"精靈訓練師 A",color:"#8e44ad",emoji:"🥇"};
+  if(s>=550)return{label:"見習收服師 B",color:"#2980b9",emoji:"🥈"};
+  if(s>=400)return{label:"草叢探險家 C",color:"#27ae60",emoji:"🥉"};
+  return{label:"初學者 D",color:"#95a5a6",emoji:"📚"};
+}
+function shuffle(a){var b=a.slice();for(var i=b.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=b[i];b[i]=b[j];b[j]=t;}return b;}
+
+function startTimer(){
+  clearInterval(timerInterval);elapsed=0;spiritStart=Date.now();
+  timerInterval=setInterval(function(){elapsed=Math.floor((Date.now()-spiritStart)/1000);$('timer-display').textContent=elapsed;},300);
+}
+function stopTimer(){clearInterval(timerInterval);}
+
+function updateHdr(){
+  $('captured-count').textContent=captured.length;
+  $('score-display').textContent=totalScore;
+  var segs=$('progress-strip').querySelectorAll('.pstrip-seg');
+  for(var i=0;i<segs.length;i++) segs[i].className='pstrip-seg'+(i<captured.length?' done':'');
+}
+
+function buildStrip(){
+  var s=$('progress-strip');s.innerHTML='';
+  for(var i=0;i<SUBSTANCES.length;i++){var d=document.createElement('div');d.className='pstrip-seg';s.appendChild(d);}
+}
+
+function calcScore(mistakes,secs){
+  var tb=Math.max(0,TIME_BONUS-Math.floor(secs/5)*5);
+  return Math.max(0,BASE+tb-mistakes*PENALTY);
+}
+
+function startGame(){
+  queue=shuffle(SUBSTANCES);current=queue.shift();
+  phase=1;totalScore=0;spiritMistakes=0;captured=[];spiritScores=[];
+  buildStrip();showScreen('screen-game');
+  renderPhase1();startTimer();
+}
+
+function renderPhase1(){
+  var c=current;
+  var card=$('spirit-card');
+  card.style.background=c.bgColor;
+  card.innerHTML='<div class="type-badge" style="background:'+c.color+'">'+TYPE_LABELS[c.type]+'</div>'
+    +'<div class="sp-header">'
+    +'<div class="sp-avatar shadow" id="sp-avatar">❓</div>'
+    +'<div><div class="sp-phase">第 1 階段</div>'
+    +'<div class="sp-title" style="color:'+c.color+'">黑影精靈出現了！</div>'
+    +'<div class="sp-hint">選擇正確的果實安撫牠！</div></div></div>'
+    +'<div id="mistake-bar" style="display:none;font-size:12px;color:#e74c3c;margin-bottom:6px;"></div>'
+    +'<div id="feedback-box"></div>';
+
+  var area=$('choices-area');
+  area.innerHTML='<div class="fruit-grid" id="fruit-grid"></div>';
+  var grid=$('fruit-grid');
+  FRUITS.forEach(function(f,i){
+    var btn=document.createElement('button');
+    btn.className='fruit-btn';
+    btn.style.borderColor=f.color;
+    btn.style.background=f.bg;
+    btn.innerHTML='<div class="fruit-emoji">'+f.emoji+'</div>'
+      +'<div class="fruit-label" style="color:'+f.color+'">'+f.label+'</div>'
+      +'<div class="fruit-desc">'+f.desc+'</div>';
+    btn.addEventListener('click',function(){pickFruit(f.type);});
+    grid.appendChild(btn);
+  });
+  updateHdr();
+}
+
+function renderPhase2(){
+  var c=current;
+  var card=$('spirit-card');
+  card.style.background=c.bgColor;
+  card.innerHTML='<div class="type-badge" style="background:'+c.color+'">'+TYPE_LABELS[c.type]+'</div>'
+    +'<div class="sp-header">'
+    +'<div class="sp-avatar" id="sp-avatar">'+c.spiritEmoji+'</div>'
+    +'<div><div class="sp-phase">第 2 階段</div>'
+    +'<div class="sp-title" style="color:'+c.color+'">'+c.spirit+'顯露特徵！</div>'
+    +'<div class="sp-hint">'+c.name+'（'+c.formula+'）— 選出正確的收服動作！</div></div></div>'
+    +'<div id="mistake-bar" style="display:none;font-size:12px;color:#e74c3c;margin-bottom:6px;"></div>'
+    +'<div id="feedback-box"></div>';
+
+  currentActions=shuffle(c.actions);
+  var area=$('choices-area');
+  area.innerHTML='<div class="action-grid" id="action-grid"></div>';
+  var grid=$('action-grid');
+  currentActions.forEach(function(a,i){
+    var btn=document.createElement('button');
+    btn.className='action-btn';
+    btn.style.borderColor=c.color;
+    btn.style.color=c.color;
+    btn.textContent=a.text;
+    btn.addEventListener('click',function(){pickAction(i);});
+    grid.appendChild(btn);
+  });
+  updateMistakeBar();
+}
+
+function updateMistakeBar(){
+  var mb=$('mistake-bar');
+  if(!mb)return;
+  if(spiritMistakes>0){
+    mb.textContent='❌ 本題已答錯 '+spiritMistakes+' 次，已扣 '+(spiritMistakes*PENALTY)+' 分';
+    mb.style.display='block';
+  } else { mb.style.display='none'; }
+}
+
+function setFeedback(type,msg){
+  var fb=$('feedback-box');
+  if(!fb)return;
+  fb.innerHTML='<div class="fb '+type+'">'+(type==='success'?'✅ ':'❌ ')+msg+'</div>';
+}
+
+function pickFruit(type){
+  if(type===current.correctFruit){
+    setFeedback('success','正確！'+current.phase1Hint);
+    phase=2;
+    setTimeout(function(){renderPhase2();},500);
+  } else {
+    spiritMistakes++;
+    updateMistakeBar();
+    setFeedback('fail','選錯了！這隻精靈是'+TYPE_LABELS[current.correctFruit]+'的，再試一次！');
+  }
+}
+
+function pickAction(idx){
+  var a=currentActions[idx];
+  if(a.correct){
+    stopTimer();
+    var secs=elapsed;
+    var sc=calcScore(spiritMistakes,secs);
+    totalScore+=sc;
+    spiritScores.push({id:current.id,name:current.name,score:sc,mistakes:spiritMistakes,time:secs,emoji:current.spiritEmoji});
+    captured.push(current);
+    updateHdr();
+    showCapturedCard(sc,secs);
+  } else {
+    spiritMistakes++;
+    updateMistakeBar();
+    setFeedback('fail','❌ '+current.failReason);
+  }
+}
+
+function showCapturedCard(sc,secs){
+  var c=current;
+  var ptsColor=sc>=BASE?'#27ae60':sc>=60?'#e67e22':'#e74c3c';
+  var card=$('spirit-card');
+  card.style.background=c.bgColor;
+  card.innerHTML='<div class="captured-inner">'
+    +'<div class="cap-emoji">'+c.spiritEmoji+'</div>'
+    +'<div class="cap-name" style="color:'+c.color+'">'+c.spirit+'</div>'
+    +'<div class="cap-formula">'+c.name+'（'+c.formula+'）</div>'
+    +'<div class="cap-score-row"><span>⏱ '+secs+' 秒</span><span>❌ 錯 '+spiritMistakes+' 次</span>'
+    +'<span style="font-weight:800;color:'+ptsColor+'">+'+sc+' 分</span></div>'
+    +'<div class="cap-note"><b>📚 習作重點：</b>'+c.studyNote+'</div>'
+    +'</div>';
+
+  $('choices-area').innerHTML='';
+
+  // 用 JS 建立按鈕，避免 onclick 字串問題
+  var btn=document.createElement('button');
+  btn.className='btn-next-spirit';
+  btn.style.background=c.color;
+  btn.style.display='block';
+  btn.style.margin='12px auto 0';
+  btn.textContent=queue.length>0?'前往下一隻精靈 →':'查看成績 🏆';
+  btn.addEventListener('click',function(){nextSpirit();});
+  card.querySelector('.captured-inner').appendChild(btn);
+}
+
+function nextSpirit(){
+  if(queue.length===0){showComplete();return;}
+  current=queue.shift();phase=1;spiritMistakes=0;
+  renderPhase1();startTimer();
+}
+
+function showComplete(){
+  showScreen('screen-complete');
+  var rank=getRank(totalScore);
+  var pct=Math.round(totalScore/MAX_SCORE*100);
+  $('comp-icon').textContent=rank.emoji;
+  $('comp-score').innerHTML='<span style="color:'+rank.color+'">'+totalScore+'</span> <span style="font-size:16px;color:#888;font-weight:400;">/ '+MAX_SCORE+' 分</span>';
+  $('rank-badge').textContent=rank.label;
+  $('rank-badge').style.background=rank.color;
+  $('comp-pct').textContent='正確率換算 '+pct+'%';
+  setTimeout(function(){$('score-bar-fill').style.width=pct+'%';},100);
+
+  var bl=$('breakdown-list');bl.innerHTML='';
+  spiritScores.forEach(function(s){
+    var ptsColor=s.score>=BASE?'#27ae60':s.score>=60?'#e67e22':'#e74c3c';
+    var row=document.createElement('div');
+    row.className='breakdown-row';
+    row.innerHTML='<span class="bdr-emoji">'+s.emoji+'</span>'
+      +'<span class="bdr-name">'+s.name+'</span>'
+      +'<span class="bdr-mistakes">錯'+s.mistakes+'次</span>'
+      +'<span class="bdr-time">'+s.time+'秒</span>'
+      +'<span class="bdr-pts" style="color:'+ptsColor+'">'+s.score+'分</span>';
+    bl.appendChild(row);
+  });
+
+  var dg=$('dex-grid');dg.innerHTML='';
+  captured.forEach(function(s){
+    var d=document.createElement('div');
+    d.className='dex-card';
+    d.style.background=s.bgColor;
+    d.innerHTML='<div class="dex-emoji">'+s.spiritEmoji+'</div><div class="dex-name" style="color:'+s.color+'">'+s.name+'</div>';
+    dg.appendChild(d);
+  });
+}
+
+// 綁定靜態按鈕
+document.getElementById('btn-start').addEventListener('click',startGame);
+document.getElementById('btn-restart').addEventListener('click',function(){showScreen('screen-title');});
+</script>
+</body>
+</html>
